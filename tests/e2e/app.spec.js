@@ -5,7 +5,7 @@ import { expect, test, ui } from './fixtures.js';
 
 test.describe('app shell', () => {
   test('lists every tool on the home screen', async ({ page }) => {
-    await expect(page).toHaveTitle('PDF Toolkit · Free PDF tools in your browser');
+    await expect(page).toHaveTitle('PDF Toolkit · Free PDF tools. Your files never leave your device');
     await expect(page.locator('.cell')).toHaveCount(TOOL_CATALOG.length);
     for (const tool of TOOL_CATALOG) await expect(page.getByRole('button', { name: `Open ${tool.title}` })).toBeAttached();
   });
@@ -69,7 +69,7 @@ test.describe('app shell', () => {
       expect(await page.evaluate((f) => document.fonts.check(`16px "${f}"`), family), family).toBe(true);
     }
     expect(await page.locator('.app-name').first().evaluate((e) => getComputedStyle(e).fontStretch)).toBe('118%');
-    const icon = await page.locator('link[rel="icon"]').getAttribute('href');
+    const icon = await page.locator('link[rel="icon"][type="image/svg+xml"]').getAttribute('href');
     expect((await request.get(icon)).headers()['content-type']).toContain('svg');
   });
 
@@ -85,6 +85,21 @@ test.describe('app shell', () => {
 });
 
 test.describe('privacy and security', () => {
+  test('has search and social metadata that says files stay on the device', async ({ page, request }) => {
+    const meta = (sel) => page.locator(sel).getAttribute('content');
+    expect(await meta('meta[name="description"]')).toContain('never leave your device');
+    expect(await meta('meta[property="og:title"]')).toContain('never leave your device');
+    expect(await meta('meta[property="og:image"]')).toBe('https://pdfkit.rxnova.dev/og-image.png');
+    expect(await meta('meta[name="twitter:card"]')).toBe('summary_large_image');
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://pdfkit.rxnova.dev/');
+    const ld = JSON.parse(await page.locator('script[type="application/ld+json"]').textContent());
+    expect(ld['@type']).toBe('WebApplication');
+    expect(ld.featureList).toHaveLength(TOOL_CATALOG.length + 1);
+    for (const path of ['og-image.png', 'apple-touch-icon.png', 'icon-512.png', 'site.webmanifest', 'robots.txt', 'sitemap.xml']) {
+      expect((await request.get(path)).ok(), path).toBe(true);
+    }
+  });
+
   test('ships the strict Content-Security-Policy', async ({ page }) => {
     test.skip(process.env.E2E_TARGET === 'dev', 'the CSP is only added to production builds');
     await expect(page.locator('meta[http-equiv="Content-Security-Policy"]')).toHaveAttribute('content', CSP);

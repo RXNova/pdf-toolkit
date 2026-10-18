@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { TOOL_CATALOG } from './src/catalog.js';
 
 // Strict CSP for the built site. 'wasm-unsafe-eval' lets the worker compile qpdf's WebAssembly;
 // connect-src 'self' means the page can't send data anywhere else. (Not applied in dev:
@@ -24,9 +25,34 @@ const productionCsp = {
   ],
 };
 
+// Structured data for search engines (schema.org WebApplication), built from the catalog so the
+// feature list always matches the tools. A JSON data block, not a script: the CSP doesn't apply.
+export const STRUCTURED_DATA = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'PDF Toolkit',
+  url: 'https://pdfkit.rxnova.dev/',
+  description: 'Free PDF tools that run entirely in your browser. Your files never leave your device: nothing is uploaded.',
+  applicationCategory: 'UtilitiesApplication',
+  operatingSystem: 'Any (runs in a web browser)',
+  browserRequirements: 'Requires JavaScript and a modern browser',
+  isAccessibleForFree: true,
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  image: 'https://pdfkit.rxnova.dev/og-image.png',
+  featureList: [...TOOL_CATALOG.map((t) => `${t.title}: ${t.desc}`), 'Private: files are processed on your device and never uploaded'],
+  author: { '@type': 'Organization', name: 'RXNova' },
+};
+
+const structuredData = {
+  name: 'structured-data',
+  transformIndexHtml: () => [
+    { tag: 'script', attrs: { type: 'application/ld+json' }, children: JSON.stringify(STRUCTURED_DATA), injectTo: 'head' },
+  ],
+};
+
 export default defineConfig({
   base: './', // relative URLs, so the site works from any sub-path (e.g. GitHub Pages)
-  plugins: [react(), productionCsp],
+  plugins: [react(), productionCsp, structuredData],
   worker: { format: 'es' },
   // Pre-bundle the worker's dependencies at dev-server start. Otherwise Vite discovers them
   // on first use and reloads the page mid-session.

@@ -20,11 +20,11 @@ it('navigates from the grid to a tool and back', async () => {
   render(<App />);
   expect(screen.queryByRole('button', { name: /All tools/ })).not.toBeInTheDocument();
   expect(within(screen.getByRole('main')).getAllByRole('button', { name: /^Open / })).toHaveLength(TOOL_CATALOG.length);
-  expect(document.title).toBe('PDF Toolkit · Free PDF tools in your browser');
+  expect(document.title).toBe('PDF Toolkit · Free PDF tools. Your files never leave your device');
 
   await userEvent.click(screen.getByRole('button', { name: 'Open Compress PDF' }));
   expect(screen.getByRole('heading', { name: 'Compress PDF' })).toBeInTheDocument();
-  expect(document.title).toBe('Compress PDF · PDF Toolkit');
+  expect(document.title).toBe('Compress PDF · PDF Toolkit · Files never leave your device');
 
   await userEvent.click(screen.getByRole('button', { name: /All tools/ }));
   expect(screen.getByRole('searchbox', { name: 'Search tools' })).toBeInTheDocument();

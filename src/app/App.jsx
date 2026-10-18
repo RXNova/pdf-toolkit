@@ -15,7 +15,7 @@ export default function App() {
   const [view, setView] = useStoredState('pdf-toolkit:view', 'grid', ['grid', 'list']);
 
   useEffect(() => {
-    document.title = tool ? `${tool.title} · PDF Toolkit` : 'PDF Toolkit · Free PDF tools in your browser';
+    document.title = tool ? `${tool.title} · PDF Toolkit · Files never leave your device` : 'PDF Toolkit · Free PDF tools. Your files never leave your device';
     window.scrollTo?.({ top: 0, behavior: 'instant' });
   }, [tool]);
 
