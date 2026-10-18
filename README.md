@@ -111,3 +111,7 @@ Unit tests sit next to the code they test (`*.test.js`).
 1. Add an entry to `TOOL_CATALOG` in `src/catalog.js`, including its options. The form appears automatically.
 2. Add `src/core/tools/<id>.js` and register it in `src/core/tools/index.js`.
 3. Add a unit test next to it and an e2e case in `tests/e2e/tools.spec.js`.
+
+## License
+
+[MIT](LICENSE) © RXNova. Third-party libraries keep their own licenses: pdf-lib (MIT), pdf.js (Apache-2.0), qpdf (Apache-2.0) and its WebAssembly build (ISC), fflate (MIT), React (MIT).
