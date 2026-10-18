@@ -19,6 +19,11 @@ try {
 window.addEventListener('dragover', (e) => e.preventDefault());
 window.addEventListener('drop', (e) => e.preventDefault());
 
+// Offline support: cache the app once it has loaded (production builds only).
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+}
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <App />

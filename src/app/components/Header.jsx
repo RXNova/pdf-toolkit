@@ -1,10 +1,13 @@
-import Cells from './Cells.jsx';
+import { Download } from 'lucide-react';
+import { useInstallPrompt } from '../hooks/useInstallPrompt.js';
 import { THEMES, useTheme } from '../hooks/useTheme.js';
+import Cells from './Cells.jsx';
 
 const THEME_LABELS = { system: 'Auto', dark: 'Dark', light: 'Light' };
 
 export default function Header({ onHome, view, onViewChange, showViewToggle }) {
   const { theme, setTheme } = useTheme();
+  const install = useInstallPrompt();
   return (
     <header className="topbar">
       <div className="column">
@@ -16,6 +19,13 @@ export default function Header({ onHome, view, onViewChange, showViewToggle }) {
         {showViewToggle && (
           <div className="topbar-cell layout">
             <Cells label="Layout" options={[['grid', 'Grid'], ['list', 'List']]} value={view} onChange={onViewChange} />
+          </div>
+        )}
+        {install && (
+          <div className="topbar-cell install">
+            <button type="button" className="tab" onClick={install} title="Install PDF Toolkit as an app: it works offline">
+              <Download size={13} aria-hidden="true" /> Install
+            </button>
           </div>
         )}
         <div className="topbar-cell">

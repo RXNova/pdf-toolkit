@@ -11,6 +11,7 @@ export default [
     languageOptions: { globals: { ...globals['shared-node-browser'] } },
   },
   { files: ['src/worker/**/*.js'], languageOptions: { globals: globals.worker } },
+  { files: ['src/sw/**/*.js'], languageOptions: { globals: { ...globals.serviceworker, __PRECACHE__: 'readonly' } } },
   { files: ['tests/**/*.js', '*.{js,mjs}'], languageOptions: { globals: globals.node } },
   {
     files: ['src/app/**/*.{js,jsx}'],

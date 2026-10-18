@@ -19,6 +19,8 @@ Merge, split, compress, rotate, watermark and password-protect PDFs **entirely i
 
 Previews (file cards, page grids, the page viewer and live previews) are drawn with pdf.js, loaded on first use.
 
+It's an installable PWA: after the first visit a service worker (`src/sw/sw.js`) has cached the whole app, so it opens and works with no connection.
+
 Processing runs in a Web Worker, so the page stays responsive with large files. The one exception is PDF to JPG / PNG: it needs the browser's PDF renderer, whose own worker does the heavy work.
 
 Page ranges look like `1-3, 5, 8-` (`8-` is page 8 to the end, `5-1` is pages 5 down to 1).

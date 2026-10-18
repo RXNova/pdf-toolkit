@@ -1,3 +1,5 @@
+import { createHash } from 'node:crypto';
+import { readdirSync, readFileSync } from 'node:fs';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { TOOL_CATALOG } from './src/catalog.js';
@@ -50,9 +52,35 @@ const structuredData = {
   ],
 };
 
+// Public files worth having offline (sharing images, robots and sitemap aren't).
+const OFFLINE_PUBLIC = readdirSync('public').filter((f) => /\.(svg|png|webmanifest)$/.test(f) && f !== 'og-image.png');
+
+/**
+ * Emits sw.js with the list of every built file to precache, and a version that changes
+ * whenever any of them does (so a deploy replaces the old cache).
+ */
+const serviceWorker = {
+  name: 'service-worker',
+  apply: 'build',
+  generateBundle(_options, bundle) {
+    const built = Object.keys(bundle).filter((f) => !f.endsWith('.map'));
+    // The page is cached as "./", the URL it's served at (hosts like Cloudflare redirect
+    // /index.html to /, and a redirect can't stand in for a page). index.html itself is
+    // emitted after this hook runs, so it's left out here.
+    const precache = ['./', ...[...new Set([...built, ...OFFLINE_PUBLIC])].filter((f) => f !== 'index.html').sort()];
+    const version = createHash('sha256').update(precache.join('\n')).update(
+      built.map((f) => bundle[f].code ?? bundle[f].source ?? '').join(''),
+    ).digest('hex').slice(0, 12);
+    const source = readFileSync('src/sw/sw.js', 'utf8')
+      .replace("'__VERSION__'", JSON.stringify(version))
+      .replace('__PRECACHE__', JSON.stringify(precache));
+    this.emitFile({ type: 'asset', fileName: 'sw.js', source });
+  },
+};
+
 export default defineConfig({
   base: './', // relative URLs, so the site works from any sub-path (e.g. GitHub Pages)
-  plugins: [react(), productionCsp, structuredData],
+  plugins: [react(), productionCsp, structuredData, serviceWorker],
   worker: { format: 'es' },
   // Pre-bundle the worker's dependencies at dev-server start. Otherwise Vite discovers them
   // on first use and reloads the page mid-session.

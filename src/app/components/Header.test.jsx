@@ -49,3 +49,15 @@ it('offers Auto / Dark / Light themes, like craft-launcher, defaulting to the sy
   await userEvent.click(screen.getByRole('button', { name: 'Auto' }));
   expect(document.documentElement).not.toHaveAttribute('data-theme');
 });
+
+it('offers an Install button only when the browser can install the app', async () => {
+  const { act } = await import('@testing-library/react');
+  render(<Header onHome={() => {}} view="grid" onViewChange={() => {}} showViewToggle />);
+  expect(screen.queryByRole('button', { name: /Install/ })).not.toBeInTheDocument();
+  const event = new Event('beforeinstallprompt', { cancelable: true });
+  event.prompt = vi.fn(async () => {});
+  act(() => window.dispatchEvent(event));
+  await userEvent.click(screen.getByRole('button', { name: /Install/ }));
+  expect(event.prompt).toHaveBeenCalled();
+  expect(screen.queryByRole('button', { name: /Install/ })).not.toBeInTheDocument();
+});

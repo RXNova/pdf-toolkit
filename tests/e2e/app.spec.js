@@ -100,6 +100,26 @@ test.describe('privacy and security', () => {
     }
   });
 
+  test('is a PWA: once opened, it reloads and works with no connection', async ({ page, context }) => {
+    // Wait for the service worker to install and take control (it precaches the whole app).
+    await page.evaluate(async () => {
+      await navigator.serviceWorker.ready;
+      if (!navigator.serviceWorker.controller) {
+        await new Promise((resolve) => navigator.serviceWorker.addEventListener('controllerchange', resolve, { once: true }));
+      }
+    });
+    await context.setOffline(true);
+    await page.reload();
+    await expect(page.locator('.cell')).toHaveCount(TOOL_CATALOG.length);
+    // A tool that needs the lazily loaded worker and qpdf WebAssembly still runs offline.
+    await ui.openTool(page, 'Protect PDF');
+    await ui.addFiles(page, [named('doc.pdf', await pdfBytes({ pages: 1 }))]);
+    for (const field of await page.locator('input[type=password]').all()) await field.fill('offline');
+    await ui.run(page, 'Protect PDF');
+    await expect(ui.status(page)).toHaveClass(/ok/, { timeout: 30_000 });
+    await context.setOffline(false);
+  });
+
   test('ships the strict Content-Security-Policy', async ({ page }) => {
     test.skip(process.env.E2E_TARGET === 'dev', 'the CSP is only added to production builds');
     await expect(page.locator('meta[http-equiv="Content-Security-Policy"]')).toHaveAttribute('content', CSP);
