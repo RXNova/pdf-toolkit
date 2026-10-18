@@ -1,0 +1,12 @@
+// Cloudflare: serves the static build (dist/) as Worker static assets, on pdfkit.rxnova.dev.
+// Deploy with `npm run deploy`. No server code: every PDF is processed in the visitor's browser.
+{
+  "$schema": "https://unpkg.com/wrangler/config-schema.json",
+  "name": "pdf-toolkit",
+  "compatibility_date": "2026-10-12",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  },
+  "routes": [{ "pattern": "pdfkit.rxnova.dev", "custom_domain": true }]
+}
