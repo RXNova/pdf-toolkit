@@ -1,5 +1,7 @@
 # PDF Toolkit
 
+[![Live site](https://img.shields.io/website?url=https%3A%2F%2Fpdfkit.rxnova.dev&label=live%20site&up_message=pdfkit.rxnova.dev&up_color=2f7bf5&down_message=down)](https://pdfkit.rxnova.dev)
+
 Merge, split, compress, rotate, watermark and password-protect PDFs **entirely in the browser**. There's no server: files are processed on the user's device and never uploaded. The build is a static site you can host anywhere (GitHub Pages, Netlify, Cloudflare Pages, S3).
 
 ## Tools
